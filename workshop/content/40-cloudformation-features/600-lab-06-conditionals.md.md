@@ -7,13 +7,32 @@ weight: 600
 
 ## Introduction
 
-In the goal of making CloudFormation template flexible and reusable, it would be useful to create certain resources only sometimes. For example, in dev and test environments, you may not wish to create a CloudFront distribution.
+It would be useful in CloudFormation templates to create resources only in certain scenarios. For example, in development environments you may not wish to create a CloudFront distribution.
 
-Conditions are a way to achieve this. Conditions define a boolean value that evaluate to `true` or `false`. This condition can then be referenced by components of `Resources` and `Outputs` sections of a CloudFormation template.
+Conditions define circumstances of when Resources and Outputs are created. Conditions define a boolean value that evaluate to `true` or `false`. This condition can then be referenced by components of `Resources` and `Outputs` sections of a CloudFormation template.
 
 Let's take a look at an example.
 
-### Example
+
+## The structure of a Condition
+
+```yaml
+Conditions:
+  Logical ID:
+    Intrinsic function
+```
+
+You can use the following intrinsic functions to define conditions:
+
+* `Fn::And`
+* `Fn::Equals`
+* `Fn::If`
+* `Fn::Not`
+* `Fn::Or`
+
+
+
+## Example
 
 ```yaml
 Parameters:
@@ -64,7 +83,7 @@ Outputs:
     
 ```
 
-## Conditionals Section
+### Conditionals Section
 
 ```yaml
 Conditions:
@@ -84,7 +103,7 @@ The first is `IsProduction`. This will evaluate to `true` if the Parameter `Envi
 
 The second condtion is `IsNotProduction`. This will evaluate to the opposite of `IsProduction`. This can be used to create resources and outputs for non production environments.
 
-## Resource Configuration
+### Resource Configuration
 
 ```yaml
 Resources:
@@ -104,7 +123,7 @@ Resources:
 
 Two resources are defined in the Resources section. The first is an EC2 instance. The second is an Application Load Balancer. The Application Load Balancer has a `Condition` key. The value of the `Condition` key is `IsProduction`. This resource will only be created when the value of the Condition is `true`. In this example, it will only be created when `IsProduction` is true.
 
-## Output Configuration
+### Output Configuration
 
 ```yaml
 Outputs:
@@ -123,7 +142,39 @@ Outputs:
 
 Two outputs are defined in the template. They provide an endpoint URL. In this example, we want the Application Load Balancer endpoint if it exists. Otherwise, the EC2 Public DNS name should be provided. Each output has a Condition key included, referencing the two Conditions, `IsProduction` and `IsNotProduction` defined earlier in the template.
 
+### Configuring Resources with Conditions
 
+Conditions can be used to configure properties of resources. This is done using the intrinsic function `Fn::If`. 
+
+Here's an example of it in use.
+
+```yaml
+Parameters:
+  DevEnvironment:
+    Type: String
+    Default: "True"
+    AllowedValues:
+      - "True"
+      - "False"
+
+Conditions:
+  IsDev:
+    !Equals [ !Ref DevEnvironment, "True" ]
+
+Resource:
+  EC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      # Add an example property here!
+      Tags:
+        - !If IsDev
+          - "Dev"
+          - AWS::NoValue
+
+
+
+
+```
 ## Exercise
 
 * Use existing template
