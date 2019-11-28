@@ -4,29 +4,44 @@ date: 2019-10-28T11:11:22Z
 weight: 100
 ---
 
-A template is a JSON or YAML formatted text file that describes your AWS infrastructure. The following example 
-shows an AWS CloudFormation YAML template structure and its sections.
+This section of the workshop builds upon the knowledge in the [CloudFormation Fundamentals section](../30-cloudformation-fundamentals).
+
+The following example CloudFormation template is in YAML format and shows the overall structure of a template and its sections.
 
 ```yaml
-  AWSTemplateFormatVersion: 'version date' (optional)
+  AWSTemplateFormatVersion: version date  # Recommended
 
-  Description: 'String' (optional)
+  Description: Description of the template  # Recommended
+
+  Transform: A string or a map of template transforms  # Optional
     
-  Metadata: 'template metadata' (optional)   
+  Metadata:  # Optional
+    Map: of
+    Template: metadata
     
-  Parameters: 'set of parameters' (optional)
+  Parameters:  # Optional
+    Map: of
+    Template: parameters
       
-  Mappings: 'set of mappings' (optional)
+  Mappings:  # Optional
+    Map: of
+    Template: values
 
-  Conditions: 'set of conditions' (optional)     
+  Conditions:  # Optional
+    Map: of
+    Template: conditions
     
-  Transform: 'set of transforms' (optional) 
+  Resources:  # Required
+    Map: of
+    Template: resources
     
-  Resources: 'set of resources' (required)     
-    
-  Outputs: 'set of outputs' (optional)
+  Outputs:  # Optional
+    Map: of
+    Template: outputs
 ```
 
-Templates include several major sections. The **Resources** section is the only **required** section. Some sections in a 
-template can be in any order. As you build your template, it can be helpful to use the logical order shown in 
-the following lab. This is because values in one section might refer to values from a previous section.
+The only *required* element of a template is **Resources**.
+
+The elements *can* be in any order, but as your templates become larger and more complex, it can be helpful to use the logical order shown above.
+
+Most CloudFormation templates you encounter (such as the example templates in the [AWS CloudFormation Sample Templates GitHub repository](https://github.com/awslabs/aws-cloudformation-templates)) will be laid out in a similar format to the above example.
