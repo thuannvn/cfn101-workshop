@@ -28,7 +28,7 @@ Parameters:
   AmiID:
     Type: AWS::EC2::Image::Id # Replace this with SSM parameter type
     Description: 'The ID of the AMI.'
-    Default: '' # Provide an Amazon Linux AMI alias
+    Default: 'ami-0e8e39877665a7c92' # Provide an Amazon Linux AMI alias
 
 Mappings:
   EnvironmentToInstanceType:

@@ -1,0 +1,100 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Description: CFN 101 Workshop - Lab 09 Helper Scripts. (uksb-1qbkgojmc)
+
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: 'Amazon EC2 Configuration'
+        Parameters:
+          - AmiID
+
+    ParameterLabels:
+      AmiID:
+        default: 'Amazon Machine Image ID'
+
+Parameters:
+  EnvironmentType:
+    Description: 'Specify the Environment type of the stack.'
+    Type: String
+    Default: Test
+    AllowedValues:
+      - Dev
+      - Test
+      - Prod
+    ConstraintDescription: 'Specify either Dev, Test or Prod.'
+
+  AmiID:
+    Type: String
+    Description: 'The ID of the AMI.'
+    Default: 'ami-0e8e39877665a7c92'
+
+Mappings:
+  EnvironmentToInstanceType:
+    Dev:
+      InstanceType: t2.nano
+    Test:
+      InstanceType: t2.micro
+    Prod:
+      InstanceType: t2.small
+
+Resources:
+  SSMIAMRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+
+  WebServerInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: /
+      Roles:
+        - !Ref SSMIAMRole
+
+  WebServerInstance:
+    Type: AWS::EC2::Instance
+    # Metadata:
+    #   # 1. Add code from '1. Configure _Metadata_ section' here
+    #     config:
+    #       packages:
+    #         # 2. Add the code from '1. Install HTTPD and PHP packages' section here
+
+    #       files:
+    #         # 3. Add the /var/www/html/index.php file from '2. Create index.php file' section here
+
+    #         # 6. Add the /etc/cfn/cfn-hup.conf file from '3. Configure cfn-hup' section here
+
+    #         # 7. Add the /etc/cfn/hooks.d/cfn-auto-reloader.conf file from '3. Configure cfn-hup' section here
+
+    #       services:
+    #         # 4. Add the code from '3. Enable and start Apache web server' section here
+
+    #         # 8. Add the code from '3. Configure cfn-hup' section here
+
+    Properties:
+      # 12. Add AvailabilityZone property from '5. Update the stack' section here
+      IamInstanceProfile: !Ref WebServerInstanceProfile
+      ImageId: !Ref AmiID
+      InstanceType: !FindInMap [EnvironmentToInstanceType, !Ref EnvironmentType, InstanceType]
+      SubnetId: 'subnet-00b379dc764a07d14'
+      SecurityGroupIds:
+        - sg-05e0fc6226738a9f4 ## ref to base security id
+        - sg-098d0dd766345da84 ## ref to base security id
+      Tags:
+        - Key: Name
+          Value: !Join [ '-', [ !Ref EnvironmentType, webserver ] ]
+      UserData:
+        Fn::Base64: |
+          #!/bin/bash
+          yum update -y
+          EOF
